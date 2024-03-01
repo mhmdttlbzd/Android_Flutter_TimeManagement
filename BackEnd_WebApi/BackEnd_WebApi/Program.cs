@@ -1,3 +1,5 @@
+using BackEnd_WebApi;
+using BackEnd_WebApi.Application;
 using BackEnd_WebApi.DataAccess;
 using BackEnd_WebApi.DataAccess.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -12,10 +14,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddDbContext<ApplicationDbContext>();
+builder.Services.AddServices();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSingleton(new AppSetting(builder.Configuration));
 
 builder.Services.AddIdentityCore<ApplicationUser>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -31,12 +34,15 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
              ValidateAudience = true,
              ValidateLifetime = true,
              ValidateIssuerSigningKey = true,
-             ValidIssuer = "TimeManagement",
-             ValidAudience = "MohammadT",
+             ValidIssuer = builder.Configuration["JWTConfig:Issuer"],
+             ValidAudience = builder.Configuration["JWTConfig:Audience"],
              IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes
-                 ("[pseftgyhuvc5454][kjkjjkkjjjjoioi]"))
+                 (builder.Configuration["JWTConfig:signingKey"] ))
          };
      });
+
+
+
 
 builder.Services.AddSwaggerGen(swagger =>
 {
@@ -93,18 +99,21 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.User.RequireUniqueEmail = false;
     options.SignIn.RequireConfirmedEmail = false;
 });
-
+    builder.Services.AddControllersWithViews();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+    });
 }
 
 app.UseHttpsRedirection();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

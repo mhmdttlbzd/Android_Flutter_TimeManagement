@@ -7,7 +7,7 @@
         public Category Category { get; set; } = new Category();
         public int CategoryId { get; set; }
         public ApplicationUser User { get; set; } = new ApplicationUser();
-        public Guid UserId { get; set; }
+        public string UserId { get; set; } = string.Empty;
         public List<Alarm> Alarms { get; set; } = new List<Alarm>();
     }
 }
