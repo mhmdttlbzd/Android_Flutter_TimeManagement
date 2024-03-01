@@ -1,4 +1,5 @@
 ﻿using BackEnd_WebApi.Application.Dtos;
+using BackEnd_WebApi.Application.Exeptions;
 using BackEnd_WebApi.Application.Interfaces;
 using BackEnd_WebApi.DataAccess.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -13,7 +14,7 @@ namespace BackEnd_WebApi.Application.Services
     public class UserService : IUserService
     {
         private readonly UserManager<ApplicationUser> _userManager;
-       
+
         private readonly string SigningKey;
         private readonly string? Audience;
         private readonly string? Issuer;
@@ -21,7 +22,7 @@ namespace BackEnd_WebApi.Application.Services
         public UserService(UserManager<ApplicationUser> userManager, AppSetting appSetting)
         {
             _userManager = userManager;
-        
+
             SigningKey = appSetting.signingKey;
             Audience = appSetting.Audience;
             Issuer = appSetting.Issuer;
@@ -54,8 +55,9 @@ namespace BackEnd_WebApi.Application.Services
                     var tk = new JwtSecurityTokenHandler().WriteToken(token);
                     return tk;
                 }
+                throw new NotMachEmailPassExaception();
             }
-            return string.Empty;
+            throw new IncorrectInputExaception();
         }
 
         public async Task<string> Register(RegisterInputDto inputDto)
@@ -68,20 +70,22 @@ namespace BackEnd_WebApi.Application.Services
                 Name = inputDto.Name,
                 Family = inputDto.Family
             };
+            var oldUser = await _userManager.FindByNameAsync(inputDto.Email);
+            if (oldUser != null)
+            {
+                throw new DuplicateEmailException();
+            }
+
             var result = await _userManager.CreateAsync(user, inputDto.Password);
 
             if (result.Succeeded)
             {
                 string tk;
                 var token = GetToken(user.UserName);
-                try
-                {
-                    tk = new JwtSecurityTokenHandler().WriteToken(token);
-                }
-                catch(Exception ex) { tk = ex.Message; }
+                tk = new JwtSecurityTokenHandler().WriteToken(token);
                 return tk;
             }
-            return string.Empty;
+            throw new IncorrectInputExaception();
         }
     }
 }

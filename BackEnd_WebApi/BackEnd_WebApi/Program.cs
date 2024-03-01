@@ -1,5 +1,6 @@
 using BackEnd_WebApi;
 using BackEnd_WebApi.Application;
+using BackEnd_WebApi.Application.Middleware;
 using BackEnd_WebApi.DataAccess;
 using BackEnd_WebApi.DataAccess.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -99,7 +100,18 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.User.RequireUniqueEmail = false;
     options.SignIn.RequireConfirmedEmail = false;
 });
+    builder.Services.AddTransient<ExceptionHandlerMiddleware>();
     builder.Services.AddControllersWithViews();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: "MyAllowSpecificOrigins",
+        builder =>
+        {
+            builder.AllowAnyOrigin()
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        });
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -111,6 +123,7 @@ if (app.Environment.IsDevelopment())
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
     });
 }
+app.UseMiddleware<ExceptionHandlerMiddleware>();
 
 app.UseHttpsRedirection();
 app.UseAuthentication();

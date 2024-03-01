@@ -21,22 +21,24 @@ namespace BackEnd_WebApi.Controllers
         public async Task<IActionResult> Register(RegisterInputDto dto)
         {
             var token = await _userService.Register(dto);
-            if (string.IsNullOrEmpty(token))
+            var res = new ApiResponce()
             {
-                return BadRequest();
-            }
-            return Ok(token);
+                Succeeded = true,
+                Content = token
+            };
+            return Ok(res);
         }
 
         [HttpPost("Login")]
         public async Task<IActionResult> Login(LoginDto dto)
         {
             var token = await _userService.Login(dto);
-            if (string.IsNullOrEmpty(token))
+            var res = new ApiResponce()
             {
-                return BadRequest();
-            }
-            return Ok(token);
+                Succeeded = true,
+                Content = token
+            };
+            return Ok(res);
         }
     }
 }
