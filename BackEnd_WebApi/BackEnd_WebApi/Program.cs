@@ -38,7 +38,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
              ValidIssuer = builder.Configuration["JWTConfig:Issuer"],
              ValidAudience = builder.Configuration["JWTConfig:Audience"],
              IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes
-                 (builder.Configuration["JWTConfig:signingKey"] ))
+                 (builder.Configuration["JWTConfig:signingKey"]))
          };
      });
 
@@ -100,8 +100,8 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.User.RequireUniqueEmail = false;
     options.SignIn.RequireConfirmedEmail = false;
 });
-    builder.Services.AddTransient<ExceptionHandlerMiddleware>();
-    builder.Services.AddControllersWithViews();
+builder.Services.AddTransient<ExceptionHandlerMiddleware>();
+builder.Services.AddControllersWithViews();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: "MyAllowSpecificOrigins",
@@ -115,14 +115,12 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-    });
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+});
+
 app.UseMiddleware<ExceptionHandlerMiddleware>();
 
 app.UseHttpsRedirection();

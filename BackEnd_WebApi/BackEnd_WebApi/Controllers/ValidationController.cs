@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace BackEnd_WebApi.Controllers
 {
     
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     [Authorize(AuthenticationSchemes = "Bearer")]
     [AllowAnonymous]

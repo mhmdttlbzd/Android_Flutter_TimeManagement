@@ -26,7 +26,17 @@ namespace BackEnd_WebApi.Application.Middleware
                 context.Response.WriteAsync(JsonSerializer.Serialize(res));
                 
             }
+            catch (Exception e)
+            {
+                var res = new ApiResponce()
+                {
+                    Message = "error"
+                };
+                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                context.Response.ContentType = "application/json";
+                context.Response.WriteAsync(JsonSerializer.Serialize(res));
 
+            }
 
         }
     }
