@@ -15,7 +15,7 @@ namespace BackEnd_WebApi.DataAccess
         {
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    => optionsBuilder.UseSqlServer("Server=.\\SQLEXPRESS;Database=TimeManagementDb;Trusted_Connection=True;TrustServerCertificate=True");
+    => optionsBuilder.UseSqlServer("sqlcmd -S timemanagementdb,1433 -Usa -PUY77ZGoNXSdcGp5n6miN9yVi");
 
 
         public DbSet<Alarm> Alarms { get; set; }
