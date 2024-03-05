@@ -5,17 +5,17 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BackEnd_WebApi.Controllers
 {
-    
+
     [Route("[controller]")]
     [ApiController]
     [Authorize(AuthenticationSchemes = "Bearer")]
     [AllowAnonymous]
     public class ValidationController : ControllerBase
     {
-        private readonly  IUserService _userService;
+        private readonly IUserService _userService;
         public ValidationController(IUserService userService)
         {
-                _userService = userService; 
+            _userService = userService;
         }
         [HttpPost("Register")]
         public async Task<IActionResult> Register(RegisterInputDto dto)
@@ -37,6 +37,18 @@ namespace BackEnd_WebApi.Controllers
             {
                 Succeeded = true,
                 Content = token
+            };
+            return Ok(res);
+        }
+
+        [HttpPost("RefreshToken")]
+        public async Task<IActionResult> RefreshToken(AuthenticatedResponse input)
+        {
+
+            var res = new ApiResponce()
+            {
+                Succeeded = true,
+                Content = await _userService.RefreshToken(input)
             };
             return Ok(res);
         }

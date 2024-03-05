@@ -30,7 +30,7 @@ namespace BackEnd_WebApi.Application.Middleware
             {
                 var res = new ApiResponce()
                 {
-                    Message = "error"
+                    Message = e.Message
                 };
                 context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
                 context.Response.ContentType = "application/json";
