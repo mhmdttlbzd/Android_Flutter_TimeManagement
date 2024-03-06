@@ -148,6 +148,19 @@ namespace BackEnd_WebApi.Application.Services
             throw new IncorrectInputExaception();
         }
 
+        public async Task<bool> ResetPassword(string userName,string newPassword,string oldPassword)
+        {
+            if (!string.IsNullOrEmpty(userName) && !string.IsNullOrEmpty(newPassword) && !string.IsNullOrEmpty(oldPassword))
+            {
+                var user = await _userManager.FindByNameAsync(userName);
+                if (user != null && await _userManager.CheckPasswordAsync(user, oldPassword))
+                {
+                   var res = await _userManager.ChangePasswordAsync(user, oldPassword, newPassword);
+                    if (res.Succeeded) { return true; }
+                }
+            }
+            throw new IncorrectInputExaception();
+        }
     }
 }
 

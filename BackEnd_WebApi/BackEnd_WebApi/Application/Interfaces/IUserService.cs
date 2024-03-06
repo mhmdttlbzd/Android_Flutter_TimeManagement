@@ -7,5 +7,6 @@ namespace BackEnd_WebApi.Application.Interfaces
         Task<string> Login(LoginDto dto);
         Task<string> Register(RegisterInputDto inputDto);
         Task<string> RefreshToken(AuthenticatedResponse input);
+        Task<bool> ResetPassword(string userName, string newPassword, string oldPassword);
     }
 }

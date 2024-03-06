@@ -41,7 +41,7 @@ namespace BackEnd_WebApi.Controllers
             return Ok(res);
         }
 
-        [HttpPost("RefreshToken")]
+        [HttpPatch("RefreshToken")]
         public async Task<IActionResult> RefreshToken(AuthenticatedResponse input)
         {
 
@@ -50,6 +50,23 @@ namespace BackEnd_WebApi.Controllers
                 Succeeded = true,
                 Content = await _userService.RefreshToken(input)
             };
+            return Ok(res);
+        }
+
+        [Authorize]
+        [HttpPut("ResetPassword")]
+        public async Task<IActionResult> ResetPassword(string newPassword,string corrntPassword)
+        {
+            var res = new ApiResponce();
+            if (!ModelState.IsValid)
+            {
+                res.Message = ModelState.First().Value.ToString();
+            }
+           
+            else if (await _userService.ResetPassword(User?.Identity?.Name ?? string.Empty, newPassword, corrntPassword))
+            {
+                res.Succeeded = true;
+            }
             return Ok(res);
         }
     }
