@@ -9,6 +9,8 @@ namespace BackEnd_WebApi.Application
         public static IServiceCollection AddServices(this IServiceCollection services)
         {
             services.AddScoped<IUserService,UserService>();
+            services.AddScoped<ITaskService,TaskService>();
+            services.AddScoped<ICategoryService,CategoryService>();
 
             return services;
         }

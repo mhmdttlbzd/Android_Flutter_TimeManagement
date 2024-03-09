@@ -39,13 +39,13 @@ namespace BackEnd_WebApi.Application.Services
             var token = new JwtSecurityToken(
                 issuer: Issuer,
                 audience: Audience,
-                expires: DateTime.Now.AddMinutes(3),
+                expires: DateTime.Now.AddMinutes(10),
                 claims: clamsList,
                 signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)
                 );
             return token;
         }
-        public async Task<string> Login(LoginDto dto)
+        public async Task<LoginResponce> Login(LoginDto dto)
         {
             ApplicationUser? user = null;
             if (dto != null && dto.Email != null)
@@ -64,7 +64,7 @@ namespace BackEnd_WebApi.Application.Services
                     user.RefreshToken = refreshToken;
                     user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
                     await _userManager.UpdateAsync(user);
-                    var result = JsonSerializer.Serialize(new { tk, refreshToken });
+                    var result = new LoginResponce { Token = tk, RefreshToken = refreshToken };
                     return result;
                 }
                 throw new NotMachEmailPassExaception();
@@ -72,15 +72,17 @@ namespace BackEnd_WebApi.Application.Services
             throw new IncorrectInputExaception();
         }
 
-        public async Task<string> Register(RegisterInputDto inputDto)
+        public async Task<RegisterResponce> Register(RegisterInputDto inputDto)
         {
+            var forgotPass = GenerateForgotPass();
             var user = new ApplicationUser
             {
                 Email = inputDto.Email,
                 PasswordHash = inputDto.Password,
                 UserName = inputDto.Email,
                 Name = inputDto.Name,
-                Family = inputDto.Family
+                Family = inputDto.Family,
+                ForgotPassword = forgotPass
             };
             var oldUser = await _userManager.FindByNameAsync(inputDto.Email);
             if (oldUser != null)
@@ -94,10 +96,13 @@ namespace BackEnd_WebApi.Application.Services
 
             if (result.Succeeded)
             {
-                
-                var token = GetToken(user.UserName);
-                string tk = new JwtSecurityTokenHandler().WriteToken(token);
-                var res = JsonSerializer.Serialize(new { tk, refreshToken });
+                var tk = GetToken(user.UserName);
+                string token = new JwtSecurityTokenHandler().WriteToken(tk);
+                var res = new RegisterResponce{
+                Token = token,
+                RefreshToken = refreshToken,
+                ForgotPassword = forgotPass
+                };
                 return res;
             }
             throw new IncorrectInputExaception();
@@ -106,6 +111,15 @@ namespace BackEnd_WebApi.Application.Services
         private string GenerateRefreshToken()
         {
             var randomNumber = new byte[32];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(randomNumber);
+                return Convert.ToBase64String(randomNumber);
+            }
+        }
+        private string GenerateForgotPass()
+        {
+            var randomNumber = new byte[16];
             using (var rng = RandomNumberGenerator.Create())
             {
                 rng.GetBytes(randomNumber);
@@ -160,6 +174,15 @@ namespace BackEnd_WebApi.Application.Services
                 }
             }
             throw new IncorrectInputExaception();
+        }
+
+        public async Task<bool> ForgetPassword(ForgetPasswordDto input)
+        {
+            if (input == null) throw new IncorrectInputExaception();
+            var user = await _userManager.FindByNameAsync(input.Email);
+            if (user == null || user.ForgotPassword != input.ForgotPassword) throw new IncorrectInputExaception();
+            user.PasswordHash = _userManager.PasswordHasher.HashPassword(user, input.NewPassword);
+            return true;
         }
     }
 }

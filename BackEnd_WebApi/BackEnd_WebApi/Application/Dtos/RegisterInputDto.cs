@@ -18,5 +18,10 @@ namespace BackEnd_WebApi.Application.Dtos
 
         [Compare("Password",ErrorMessage ="The passwords dont match")]
         public string ConfirmPassword { get; set; }
+
+
+        [Required(AllowEmptyStrings = false, ErrorMessage = "SecondPassword cant be null")]
+        [MinLength(6, ErrorMessage = "Password must have at least 6 characters")]
+        public string SecondPassword {  get; set; }
     }    
 }

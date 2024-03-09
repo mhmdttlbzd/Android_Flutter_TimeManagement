@@ -21,10 +21,11 @@ namespace BackEnd_WebApi.Controllers
         public async Task<IActionResult> Register(RegisterInputDto dto)
         {
             var token = await _userService.Register(dto);
-            var res = new ApiResponce()
+            var res = new ApiResponce<RegisterResponce>()
             {
                 Succeeded = true,
-                Content = token
+                Content = token,
+                Message = "Save the forgotPassword for when you forget your password"
             };
             return Ok(res);
         }
@@ -33,7 +34,7 @@ namespace BackEnd_WebApi.Controllers
         public async Task<IActionResult> Login(LoginDto dto)
         {
             var token = await _userService.Login(dto);
-            var res = new ApiResponce()
+            var res = new ApiResponce<LoginResponce>()
             {
                 Succeeded = true,
                 Content = token
@@ -45,7 +46,7 @@ namespace BackEnd_WebApi.Controllers
         public async Task<IActionResult> RefreshToken(AuthenticatedResponse input)
         {
 
-            var res = new ApiResponce()
+            var res = new ApiResponce<string>()
             {
                 Succeeded = true,
                 Content = await _userService.RefreshToken(input)
@@ -67,6 +68,17 @@ namespace BackEnd_WebApi.Controllers
             {
                 res.Succeeded = true;
             }
+            return Ok(res);
+        }
+
+        [HttpPut("ForgetPassword")]
+        public async Task<IActionResult> ForgetPassword(ForgetPasswordDto input)
+        {
+            await _userService.ForgetPassword(input);
+            var res = new ApiResponce
+            {
+                Succeeded = true
+            };
             return Ok(res);
         }
     }

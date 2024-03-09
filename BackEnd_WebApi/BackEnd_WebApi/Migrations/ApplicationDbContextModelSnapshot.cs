@@ -95,6 +95,10 @@ namespace BackEndWebApi.Migrations
                     b.Property<string>("Family")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ForgotPassword")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
 
@@ -119,6 +123,12 @@ namespace BackEndWebApi.Migrations
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
+
+                    b.Property<string>("RefreshToken")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("RefreshTokenExpiryTime")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
@@ -149,6 +159,53 @@ namespace BackEndWebApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Category");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "مطالعه"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "اوقات فراغت"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "ورزش"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "کار"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "آرامش"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Name = "نظافت"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Name = "خرید"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Name = "سرگرمی"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Name = "خانواده"
+                        });
                 });
 
             modelBuilder.Entity("BackEnd_WebApi.DataAccess.Entities.Tag", b =>
@@ -176,6 +233,12 @@ namespace BackEndWebApi.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("ApplicationTaskId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ApplicationTaskId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("FromDate")
                         .HasColumnType("datetime2");
 
@@ -183,6 +246,8 @@ namespace BackEndWebApi.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ApplicationTaskId");
 
                     b.ToTable("TimeHistories");
                 });
@@ -343,6 +408,15 @@ namespace BackEndWebApi.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("BackEnd_WebApi.DataAccess.Entities.TimeHistory", b =>
+                {
+                    b.HasOne("BackEnd_WebApi.DataAccess.Entities.ApplicationTask", "ApplicationTask")
+                        .WithMany("timeHistories")
+                        .HasForeignKey("ApplicationTaskId");
+
+                    b.Navigation("ApplicationTask");
+                });
+
             modelBuilder.Entity("TagTimeHistory", b =>
                 {
                     b.HasOne("BackEnd_WebApi.DataAccess.Entities.Tag", null)
@@ -361,6 +435,8 @@ namespace BackEndWebApi.Migrations
             modelBuilder.Entity("BackEnd_WebApi.DataAccess.Entities.ApplicationTask", b =>
                 {
                     b.Navigation("Alarms");
+
+                    b.Navigation("timeHistories");
                 });
 
             modelBuilder.Entity("BackEnd_WebApi.DataAccess.Entities.ApplicationUser", b =>
