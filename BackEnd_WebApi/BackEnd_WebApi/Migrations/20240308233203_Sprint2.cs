@@ -20,12 +20,6 @@ namespace BackEndWebApi.Migrations
                 nullable: false,
                 defaultValue: "");
 
-            migrationBuilder.AddColumn<int>(
-                name: "ApplicationTaskId",
-                table: "TimeHistories",
-                type: "int",
-                nullable: false,
-                defaultValue: 0);
 
             migrationBuilder.AddColumn<int>(
                 name: "ApplicationTaskId",

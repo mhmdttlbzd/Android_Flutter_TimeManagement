@@ -10,5 +10,6 @@ namespace BackEnd_WebApi.DataAccess.Entities
         public string? RefreshToken { get; set; }
         public DateTime RefreshTokenExpiryTime { get; set; }
         public List<ApplicationTask> Tasks { get; set; } = new List<ApplicationTask>();
+        public List<Category> Categories { get; set; } = new List<Category>();
     }
 }

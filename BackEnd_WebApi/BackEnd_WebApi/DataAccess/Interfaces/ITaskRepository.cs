@@ -6,9 +6,11 @@ namespace BackEnd_WebApi.DataAccess.Interfaces
     {
         Task<bool> Creat(ApplicationTask input);
         Task<List<ApplicationTask>> GetByCategoryId(int categoryId);
-        Task<bool> Start(int taskId);
-        Task<bool> End(int taskId);
-        Task<bool> DeletTimeHistory(int id);
-        Task<List<ApplicationTask>> GetTaskHistory(string userId);
-    }
+        Task<ApplicationTask?> GetById(int id);
+        Task<bool> Start(int taskId,string userId);
+        Task<bool> End(int taskId, string userId);
+        bool Delete(int id, string userId);
+        Task<bool> Clear(string userId);
+        bool Edit(int id, string name, string userId);
+    } 
 }

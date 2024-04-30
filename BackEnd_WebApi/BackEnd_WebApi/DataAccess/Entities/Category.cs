@@ -5,5 +5,7 @@
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public List<ApplicationTask> Tasks { get; set;} = new List<ApplicationTask>();
+        public ApplicationUser? User { get; set; }
+        public string? UserId { get; set; }
     } 
 }

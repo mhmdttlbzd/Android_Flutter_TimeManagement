@@ -17,6 +17,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDataAccess();
 builder.Services.AddServices();
 builder.Services.AddControllers();
+
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSingleton(new AppSetting(builder.Configuration));
@@ -102,7 +104,7 @@ builder.Services.Configure<IdentityOptions>(options =>
 });
 builder.Services.AddTransient<ExceptionHandlerMiddleware>();
 builder.Services.AddControllersWithViews();
-builder.Services.AddCors(options =>
+var s = builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: "MyAllowSpecificOrigins",
         builder =>
@@ -112,10 +114,14 @@ builder.Services.AddCors(options =>
                 .AllowAnyMethod();
         });
 });
+
 var app = builder.Build();
+
+app.UseCors("MyAllowSpecificOrigins");
 
 // Configure the HTTP request pipeline.
 app.UseSwagger();
+
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");

@@ -33,54 +33,77 @@ namespace BackEnd_WebApi.Application.Services
             return false;
         }
 
-        public async Task<List<TaskResponceDto>> GetByCategoryId(int categoryId)
+        public async Task<List<GeneralResponceDto>> GetByCategoryId(int categoryId,string username)
         {
             var tasks = await _taskRepository.GetByCategoryId(categoryId);
-            var res = new List<TaskResponceDto>();
-            foreach (var task in tasks)
+            var res = new List<GeneralResponceDto>();
+            var user =await _userManager.FindByNameAsync(username);
+            if (user != null)
             {
-                res.Add(new TaskResponceDto
+                tasks = tasks.Where(x => x.UserId == user.Id).ToList();
+                foreach (var task in tasks.Where(t =>  t.UserId == user.Id))
                 {
-                    Name = task.Name,
-                    Id = task.Id
-                });
-            }
-            return res;
-
-        }
-
-        public async Task<bool> Start(int taskId)
-        {
-            return await _taskRepository.Start(taskId);
-        }
-
-        public async Task<bool> End(int taskId) => await _taskRepository.End(taskId);
-        public async Task<bool> DeleteTimeHistory(int id) => await _taskRepository.DeletTimeHistory(id);
-        public async Task<List<TimeHistoryResponceDto>> GetTaskHistory(string userName) 
-        {
-            var user = await _userManager.FindByNameAsync(userName);
-            var res = new List<TimeHistoryResponceDto>();
-            var cal = new PersianCalendar();
-           var tasks =await _taskRepository.GetTaskHistory(user?.Id ?? string.Empty);
-            foreach (var task  in tasks)
-            {
-                foreach (var h in task.timeHistories)
-                {
-                    var t = h.ToDate ?? DateTime.Now;
-                    var time = t - h.FromDate;
-                    var r = new TimeHistoryResponceDto
+                    res.Add(new GeneralResponceDto
                     {
-                        Date = cal.GetYear(h.FromDate) + "/" + cal.GetMonth(h.FromDate) + "/" + cal.GetDayOfMonth(h.FromDate) + " --- " + cal.GetDayOfWeek(h.FromDate),
-                        FromTime = cal.GetHour(h.FromDate) + ":" + cal.GetMinute(h.FromDate),
-                        ToTime = cal.GetHour(h.ToDate ?? DateTime.Now) + ":" + cal.GetMinute(h.ToDate ?? DateTime.Now),
-                        Time = time.Hours + ":" + time.Minutes,
-                        TaskName = task.Name,
-                       Id= h.Id
-                    };
-                    res.Add(r);
+                        Name = task.Name,
+                        Id = task.Id
+                    });
                 }
             }
             return res;
+
         }
+        public async Task<GeneralResponceDto> GetById(int id)
+        {
+            var res = new GeneralResponceDto();
+            var task = await _taskRepository.GetById(id);
+            if (task!= null)
+            {
+                res.Id = task.Id;
+                res.Name = task.Name;
+            }
+            return res;
+        }
+
+        public async Task<bool> Start(int taskId,string username)
+        {
+            var user = await _userManager.FindByNameAsync(username);
+            return await _taskRepository.Start(taskId,user.Id);
+        }
+
+        public async Task<bool> End(int taskId,string username)
+        {
+            var user = await _userManager.FindByNameAsync(username);
+            return await _taskRepository.End(taskId,user.Id);
+        }
+
+        public async Task<ApiResponce> Delete(int id , string username)
+        {
+
+            var res = new ApiResponce();
+            var user =await _userManager.FindByNameAsync(username);
+            if (user != null)
+            {
+                var suc = _taskRepository.Delete(id,user.Id.ToString());
+                res.Succeeded = suc;
+                return res;
+            }
+            res.Succeeded = false;
+            res.Message = "not foound";
+            return res;
+        }
+        public async Task<ApiResponce> Clear(string userName)
+        {
+            var user =await _userManager.FindByNameAsync(userName);
+            await _taskRepository.Clear(user?.Id.ToString() ?? string.Empty);
+            return new ApiResponce { Succeeded = true, Message = "" };
+        }
+        public async Task<ApiResponce> Edit(int id, string name, string userName)
+        {
+            var user =await _userManager.FindByNameAsync(userName);
+            _taskRepository.Edit(id, name, user?.Id.ToString() ?? string.Empty);
+            return new ApiResponce { Succeeded = true, Message = "" };
+        }
+
     }
 }

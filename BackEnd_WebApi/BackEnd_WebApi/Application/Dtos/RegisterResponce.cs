@@ -4,7 +4,6 @@
     {
         public string Token { get; set; }
         public string RefreshToken {  get; set; }   
-        public string  ForgotPassword { get; set; }
     }
     public class LoginResponce
     {

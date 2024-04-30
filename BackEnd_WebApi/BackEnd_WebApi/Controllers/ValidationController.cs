@@ -7,9 +7,6 @@ namespace BackEnd_WebApi.Controllers
 {
 
     [Route("[controller]")]
-    [ApiController]
-    [Authorize(AuthenticationSchemes = "Bearer")]
-    [AllowAnonymous]
     public class ValidationController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -34,7 +31,7 @@ namespace BackEnd_WebApi.Controllers
         public async Task<IActionResult> Login(LoginDto dto)
         {
             var token = await _userService.Login(dto);
-            var res = new ApiResponce<LoginResponce>()
+            var res = new ApiResponce<RegisterResponce>()
             {
                 Succeeded = true,
                 Content = token
@@ -81,5 +78,18 @@ namespace BackEnd_WebApi.Controllers
             };
             return Ok(res);
         }
+
+        [HttpPut("GetForgetPassword")]
+        public async Task<IActionResult> GetForgetPassword(string userName)
+        {
+            var pass = await _userService.GetForgetPasswpord(userName);
+            var res = new ApiResponce<string>
+            {
+                Content = pass,
+                Succeeded = true
+            };
+            return Ok(res);
+        }
+        
     }
 }

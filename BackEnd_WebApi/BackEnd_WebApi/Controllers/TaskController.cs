@@ -9,7 +9,6 @@ using System.Text.Json;
 namespace BackEnd_WebApi.Controllers
 {
     [Route("[controller]")]
-    [ApiController]
     [Authorize(AuthenticationSchemes = "Bearer")]
     public class TaskController : ControllerBase
     {
@@ -23,7 +22,7 @@ namespace BackEnd_WebApi.Controllers
         [HttpGet("GetAllCategories")]
         public async Task<IActionResult> GetAllCategories()
         {
-            var categories = await _categoryService.GetAll();
+            var categories = await _categoryService.GetAll(User.Identity.Name);
             var responce = new ApiResponce<List<CategoryResponceDto>>
             {
                 Succeeded = true,
@@ -35,13 +34,26 @@ namespace BackEnd_WebApi.Controllers
         [HttpGet("GetTasksByCategoryId")]
         public  async Task<IActionResult> GetTasksByCategoryId(int categoryId)
         {
-            var tasks =await _taskService.GetByCategoryId(categoryId);
-            var responce = new ApiResponce<List<TaskResponceDto>>
+            var tasks =await _taskService.GetByCategoryId(categoryId,User?.Identity?.Name ?? string.Empty);
+            if (tasks.Count() == 0) { tasks.Add(new GeneralResponceDto { Id = -1, Name = "" }); }
+            var responce = new ApiResponce<List<GeneralResponceDto>>
             {
                 Succeeded = true,
                 Content = tasks
             };
             return Ok(responce);
+        }
+
+        [HttpGet("GetById")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var task =await _taskService.GetById(id);
+            var res = new ApiResponce<GeneralResponceDto>
+            {
+                Content = task,
+                Succeeded = true
+            };
+            return Ok(res);
         }
 
         [HttpPost("CreateTask")]
@@ -61,7 +73,7 @@ namespace BackEnd_WebApi.Controllers
         [HttpPut("Start")]
         public async Task<IActionResult> Start(int taskId)
         {
-            var res = await _taskService.Start(taskId);
+            var res = await _taskService.Start(taskId,User.Identity.Name);
             var responce = new ApiResponce();
 
             if (res == true)
@@ -72,10 +84,11 @@ namespace BackEnd_WebApi.Controllers
             responce.Message = "Task is running";
             return BadRequest(responce);
         }
+
         [HttpPut("End")]
         public async Task<IActionResult> End(int taskId)
         {
-            var res = await _taskService.End(taskId);
+            var res = await _taskService.End(taskId,User.Identity.Name);
             var responce = new ApiResponce();
 
             if (res == true)
@@ -86,35 +99,54 @@ namespace BackEnd_WebApi.Controllers
             responce.Message = "you dont have a task in progress";
             return BadRequest(responce);
         }
-
-        [HttpDelete("DeleteTaskHistory")]
-        public async Task<IActionResult> DeleteTaskHistory(int historyId)
+        [HttpDelete("Delete")]
+        public async Task<IActionResult> Delete(int id)
         {
-            var res = await _taskService.DeleteTimeHistory(historyId);
-            var responce = new ApiResponce();
-
-            if (res == true)
-            {
-                responce.Succeeded = true;
-                return Ok(responce);
-            }
-            responce.Message = "id is not found";
-            return BadRequest(responce);
+            var res = await _taskService.Delete(id, User?.Identity?.Name ?? string.Empty);
+            if (res.Succeeded) return Ok(res);
+            return BadRequest(res);
+        }  
+        [HttpPut("Edit")]
+        public async Task<IActionResult> Edit(int id,string name)
+        {
+            var res = await _taskService.Edit(id,name, User?.Identity?.Name ?? string.Empty);
+            if (res.Succeeded) return Ok(res);
+            return BadRequest(res);
+        } 
+        [HttpDelete("Clear")]
+        public async Task<IActionResult> Clear()
+        {
+            var res = await _taskService.Clear( User?.Identity?.Name ?? string.Empty);
+            if (res.Succeeded) return Ok(res);
+            return BadRequest(res);
+        } 
+        [HttpDelete("ClearCategories")]
+        public async Task<IActionResult> ClearCategories()
+        {
+            var res = await _categoryService.ClearWithTasks( User?.Identity?.Name ?? string.Empty);
+            if (res.Succeeded) return Ok(res);
+            return BadRequest(res);
+        }  
+        [HttpDelete("DeleteCategory")]
+        public async Task<IActionResult> DeleteCategory(int id)
+        {
+            var res = await _categoryService.Delete(id, User?.Identity?.Name ?? string.Empty);
+            if (res.Succeeded) return Ok(res);
+            return BadRequest(res);
         }
-        [HttpGet("GetHistory")]
-        public async Task<IActionResult> GetHistory()
+        [HttpPut("EditCategory")]
+        public async Task<IActionResult> EditCategory(int id,string name)
         {
-            var res = await _taskService.GetTaskHistory(User?.Identity?.Name ?? string.Empty);
-            var responce = new ApiResponce<List<TimeHistoryResponceDto>>();
-
-            if (res != null)
-            {
-                responce.Succeeded = true;
-                responce.Content = res;
-                return Ok(responce);
-            }
-            responce.Message = "login again";
-            return BadRequest(responce);
+            var res = await _categoryService.Edit(id,name, User?.Identity?.Name ?? string.Empty);
+            if (res.Succeeded) return Ok(res);
+            return BadRequest(res);
+        }  
+        [HttpPost("CreateCategory")]
+        public async Task<IActionResult> CreateCategory(string name)
+        {
+            var res = await _categoryService.Create(name, User?.Identity?.Name ?? string.Empty);
+            if (res.Succeeded) return Ok(res);
+            return BadRequest(res);
         }
     }
 }

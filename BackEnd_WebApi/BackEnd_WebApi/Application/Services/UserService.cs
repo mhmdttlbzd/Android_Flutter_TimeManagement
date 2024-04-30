@@ -39,18 +39,19 @@ namespace BackEnd_WebApi.Application.Services
             var token = new JwtSecurityToken(
                 issuer: Issuer,
                 audience: Audience,
-                expires: DateTime.Now.AddMinutes(10),
+                expires: DateTime.Now.AddDays(1),
                 claims: clamsList,
                 signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)
                 );
             return token;
         }
-        public async Task<LoginResponce> Login(LoginDto dto)
+        public async Task<RegisterResponce> Login(LoginDto dto)
         {
             ApplicationUser? user = null;
-            if (dto != null && dto.Email != null)
+            if (dto != null && dto.UserName != null)
             {
-                user = await _userManager.FindByNameAsync(dto.Email);
+                user = await _userManager.FindByNameAsync(dto.UserName);
+                if(user == null) { user =await _userManager.FindByEmailAsync(dto.UserName); }
             }
 
             if (user != null && dto?.Password != null)
@@ -58,13 +59,15 @@ namespace BackEnd_WebApi.Application.Services
                 var res = await _userManager.CheckPasswordAsync(user, dto.Password);
                 if (res)
                 {
-                    var token = GetToken(user.UserName ?? dto.Email ?? string.Empty);
+                    var token = GetToken(user.UserName ?? dto.UserName ?? string.Empty);
                     var tk = new JwtSecurityTokenHandler().WriteToken(token);
                     var refreshToken = GenerateRefreshToken();
                     user.RefreshToken = refreshToken;
                     user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+                    int.TryParse(user.ForgotPassword,out int isTrue);
+                    if(isTrue == 0) { user.ForgotPassword =  GenerateForgotPass(); }
                     await _userManager.UpdateAsync(user);
-                    var result = new LoginResponce { Token = tk, RefreshToken = refreshToken };
+                    var result = new RegisterResponce { Token = tk, RefreshToken = refreshToken };
                     return result;
                 }
                 throw new NotMachEmailPassExaception();
@@ -79,9 +82,9 @@ namespace BackEnd_WebApi.Application.Services
             {
                 Email = inputDto.Email,
                 PasswordHash = inputDto.Password,
-                UserName = inputDto.Email,
-                Name = inputDto.Name,
-                Family = inputDto.Family,
+                UserName = inputDto.UserName,
+                Name = inputDto.UserName,
+                Family = string.Empty,
                 ForgotPassword = forgotPass
             };
             var oldUser = await _userManager.FindByNameAsync(inputDto.Email);
@@ -98,10 +101,10 @@ namespace BackEnd_WebApi.Application.Services
             {
                 var tk = GetToken(user.UserName);
                 string token = new JwtSecurityTokenHandler().WriteToken(tk);
-                var res = new RegisterResponce{
-                Token = token,
-                RefreshToken = refreshToken,
-                ForgotPassword = forgotPass
+                var res = new RegisterResponce
+                {
+                    Token = token,
+                    RefreshToken = refreshToken
                 };
                 return res;
             }
@@ -119,12 +122,11 @@ namespace BackEnd_WebApi.Application.Services
         }
         private string GenerateForgotPass()
         {
-            var randomNumber = new byte[16];
-            using (var rng = RandomNumberGenerator.Create())
-            {
-                rng.GetBytes(randomNumber);
-                return Convert.ToBase64String(randomNumber);
-            }
+
+            Random rnd = new Random();
+
+            var res = rnd.Next(10000, 99999);
+            return res.ToString();
         }
         public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
         {
@@ -162,14 +164,14 @@ namespace BackEnd_WebApi.Application.Services
             throw new IncorrectInputExaception();
         }
 
-        public async Task<bool> ResetPassword(string userName,string newPassword,string oldPassword)
+        public async Task<bool> ResetPassword(string userName, string newPassword, string oldPassword)
         {
             if (!string.IsNullOrEmpty(userName) && !string.IsNullOrEmpty(newPassword) && !string.IsNullOrEmpty(oldPassword))
             {
                 var user = await _userManager.FindByNameAsync(userName);
                 if (user != null && await _userManager.CheckPasswordAsync(user, oldPassword))
                 {
-                   var res = await _userManager.ChangePasswordAsync(user, oldPassword, newPassword);
+                    var res = await _userManager.ChangePasswordAsync(user, oldPassword, newPassword);
                     if (res.Succeeded) { return true; }
                 }
             }
@@ -182,7 +184,16 @@ namespace BackEnd_WebApi.Application.Services
             var user = await _userManager.FindByNameAsync(input.Email);
             if (user == null || user.ForgotPassword != input.ForgotPassword) throw new IncorrectInputExaception();
             user.PasswordHash = _userManager.PasswordHasher.HashPassword(user, input.NewPassword);
+            await _userManager.UpdateAsync(user);
             return true;
+        }
+        public async Task<string> GetForgetPasswpord(string username)
+        {
+            var user =await _userManager.FindByNameAsync(username);
+            if (user == null) throw new System.ApplicationException("invalid user");
+            user.ForgotPassword = GenerateForgotPass();
+            await _userManager.UpdateAsync(user);
+            return user.ForgotPassword;
         }
     }
 }

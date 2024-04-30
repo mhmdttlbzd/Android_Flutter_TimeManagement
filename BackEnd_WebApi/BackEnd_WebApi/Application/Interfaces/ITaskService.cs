@@ -6,10 +6,12 @@ namespace BackEnd_WebApi.Application.Interfaces
     public interface ITaskService
     {
         Task<bool> Creat(CreateTaskDto input, string userName);
-        Task<List<TaskResponceDto>> GetByCategoryId(int categoryId);
-        Task<bool> Start(int taskId);
-        Task<bool> End(int taskId);
-        Task<bool> DeleteTimeHistory(int id);
-        Task<List<TimeHistoryResponceDto>> GetTaskHistory(string userId);
+        Task<List<GeneralResponceDto>> GetByCategoryId(int categoryId, string username);
+        Task<bool> Start(int taskId,string username);
+        Task<bool> End(int taskId, string username);
+        Task<GeneralResponceDto> GetById(int id);
+        Task<ApiResponce> Delete(int id, string username);
+        Task<ApiResponce> Clear(string userId);
+        Task<ApiResponce> Edit(int id, string name, string userId);
     }
 }

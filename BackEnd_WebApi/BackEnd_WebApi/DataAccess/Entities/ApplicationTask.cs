@@ -8,7 +8,7 @@
         public int CategoryId { get; set; }
         public ApplicationUser? User { get; set; } 
         public string UserId { get; set; } = string.Empty;
-        public List<Alarm>? Alarms { get; set; } 
-        public List<TimeHistory>? timeHistories { get; set; }    
+        public List<Alarm> Alarms { get; set; } = new List<Alarm>();
+        public List<TimeHistory> timeHistories { get; set; } = new List<TimeHistory>(); 
     }
 }

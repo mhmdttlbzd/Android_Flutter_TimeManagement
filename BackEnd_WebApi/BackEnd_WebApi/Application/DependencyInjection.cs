@@ -11,6 +11,7 @@ namespace BackEnd_WebApi.Application
             services.AddScoped<IUserService,UserService>();
             services.AddScoped<ITaskService,TaskService>();
             services.AddScoped<ICategoryService,CategoryService>();
+            services.AddScoped<IHistoryService,HistoryService>();
 
             return services;
         }

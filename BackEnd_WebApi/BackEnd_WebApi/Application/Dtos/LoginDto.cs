@@ -6,8 +6,7 @@ namespace BackEnd_WebApi.Application.Dtos
     public class LoginDto
     {
         [Required(AllowEmptyStrings = false, ErrorMessage = "Email cant be null")]
-        [EmailAddress(ErrorMessage = "Email is incorrect")]
-        public string Email { get; set; }
+        public string UserName { get; set; }
 
 
         [Required(AllowEmptyStrings = false, ErrorMessage = "Password cant be null")]

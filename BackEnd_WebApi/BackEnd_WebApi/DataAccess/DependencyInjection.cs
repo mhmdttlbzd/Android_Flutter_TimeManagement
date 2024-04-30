@@ -12,6 +12,8 @@ namespace BackEnd_WebApi.DataAccess
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<ITaskRepository, TaskRepository>();
             services.AddDbContext<ApplicationDbContext>();
+            services.AddScoped<ITagRepository,TagRepository>();
+            services.AddScoped<ITaskHistoryRepository,TaskHistoryRepository>();
 
             return services;
         }

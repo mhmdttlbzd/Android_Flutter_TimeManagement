@@ -13,8 +13,9 @@ namespace BackEnd_WebApi.Application.Dtos
         public string NewPassword { get; set; }
 
 
-        [Required(AllowEmptyStrings = false, ErrorMessage = "ForgotPassword cant be null")]
-        [MinLength(5, ErrorMessage = "ForgotPassword must have at least 5 characters")]
+        [Required(ErrorMessage = "ForgotPassword cant be null")]
+        [MinLength(5,ErrorMessage ="forgetPassword is incorrect")]
+        [MaxLength(5,ErrorMessage ="forgetPassword is incorrect")]
         public string ForgotPassword { get; set; }
     }
 }
