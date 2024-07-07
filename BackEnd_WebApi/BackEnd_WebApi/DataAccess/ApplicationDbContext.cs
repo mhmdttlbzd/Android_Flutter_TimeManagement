@@ -16,7 +16,7 @@ namespace BackEnd_WebApi.DataAccess
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     => optionsBuilder.UseSqlServer(
-        "Data Source=timemanagementdb,1433;Initial Catalog=myDB;User Id=sa;Password=ZVXh3IeagiEfHRtS97OsjvpS;" +
+        "" +
         "Integrated Security=False;" +
         "Trusted_Connection=False;" +
         "TrustServerCertificate=True", o =>  o.EnableRetryOnFailure());
