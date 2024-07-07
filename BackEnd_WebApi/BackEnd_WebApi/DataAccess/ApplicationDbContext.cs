@@ -16,7 +16,10 @@ namespace BackEnd_WebApi.DataAccess
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     => optionsBuilder.UseSqlServer(
-
+        "Data Source=timemanagementdb,1433;Initial Catalog=myDB;User Id=sa;Password=ZVXh3IeagiEfHRtS97OsjvpS;" +
+        "Integrated Security=False;" +
+        "Trusted_Connection=False;" +
+        "TrustServerCertificate=True", o =>  o.EnableRetryOnFailure());
 
         //Integrated Security=False;
         public DbSet<Alarm> Alarms { get; set; }
@@ -40,13 +43,13 @@ namespace BackEnd_WebApi.DataAccess
             modelBuilder.Entity< IdentityUserToken<string>>(entity => entity.HasNoKey());
 
 
-            modelBuilder.Entity<Category>(e => e.HasData(
-                new Category { Id = 1, Name = "مطالعه" },new Category { Id = 2, Name = "اوقات فراغت"},
-                new Category { Id = 3, Name = "ورزش"},new Category { Id = 4, Name = "کار"},
-                new Category { Id = 5, Name = "آرامش"},new Category { Id = 7, Name = "نظافت"},
-                new Category { Id = 8, Name = "خرید"},new Category { Id = 9, Name = "سرگرمی"},
-                new Category { Id = 10, Name = "خانواده"}
-                ));
+            //modelBuilder.Entity<Category>(e => e.HasData(
+            //    new Category { Id = 1, Name = "مطالعه" },new Category { Id = 2, Name = "اوقات فراغت"},
+            //    new Category { Id = 3, Name = "ورزش"},new Category { Id = 4, Name = "کار"},
+            //    new Category { Id = 5, Name = "آرامش"},new Category { Id = 7, Name = "نظافت"},
+            //    new Category { Id = 8, Name = "خرید"},new Category { Id = 9, Name = "سرگرمی"},
+            //    new Category { Id = 10, Name = "خانواده"}
+            //    ));
         }
     }
 }

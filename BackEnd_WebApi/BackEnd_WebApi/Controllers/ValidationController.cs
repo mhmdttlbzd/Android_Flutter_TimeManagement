@@ -18,7 +18,7 @@ namespace BackEnd_WebApi.Controllers
         public async Task<IActionResult> Register(RegisterInputDto dto)
         {
             var token = await _userService.Register(dto);
-            var res = new ApiResponce<RegisterResponce>()
+            var res = new BaseApiResponce<RegisterResponce>()
             {
                 Succeeded = true,
                 Content = token,
@@ -31,7 +31,7 @@ namespace BackEnd_WebApi.Controllers
         public async Task<IActionResult> Login(LoginDto dto)
         {
             var token = await _userService.Login(dto);
-            var res = new ApiResponce<RegisterResponce>()
+            var res = new BaseApiResponce<RegisterResponce>()
             {
                 Succeeded = true,
                 Content = token
@@ -43,7 +43,7 @@ namespace BackEnd_WebApi.Controllers
         public async Task<IActionResult> RefreshToken(AuthenticatedResponse input)
         {
 
-            var res = new ApiResponce<string>()
+            var res = new BaseApiResponce<string>()
             {
                 Succeeded = true,
                 Content = await _userService.RefreshToken(input)
@@ -55,7 +55,7 @@ namespace BackEnd_WebApi.Controllers
         [HttpPut("ResetPassword")]
         public async Task<IActionResult> ResetPassword(string newPassword,string corrntPassword)
         {
-            var res = new ApiResponce();
+            var res = new ApiResponce(User.Identity.Name);
             if (!ModelState.IsValid)
             {
                 res.Message = ModelState.First().Value.ToString();
@@ -72,7 +72,7 @@ namespace BackEnd_WebApi.Controllers
         public async Task<IActionResult> ForgetPassword(ForgetPasswordDto input)
         {
             await _userService.ForgetPassword(input);
-            var res = new ApiResponce
+            var res = new BaseApiResponce
             {
                 Succeeded = true
             };
@@ -83,7 +83,7 @@ namespace BackEnd_WebApi.Controllers
         public async Task<IActionResult> GetForgetPassword(string userName)
         {
             var pass = await _userService.GetForgetPasswpord(userName);
-            var res = new ApiResponce<string>
+            var res = new BaseApiResponce<string>
             {
                 Content = pass,
                 Succeeded = true

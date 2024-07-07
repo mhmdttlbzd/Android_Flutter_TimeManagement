@@ -41,7 +41,7 @@ namespace BackEnd_WebApi.Application.Services
         {
             var user =await _userManager.FindByNameAsync(userName);
             await _repository.Clear(user?.Id.ToString() ?? string.Empty);
-            return new ApiResponce { Succeeded = true,Message ="" };
+            return new ApiResponce(user.UserName) { Succeeded = true,Message ="" };
         }
         public async Task<ApiResponce> ClearWithTasks(string userName)
         {
@@ -49,25 +49,25 @@ namespace BackEnd_WebApi.Application.Services
             await _repository.Clear(user?.Id.ToString() ?? string.Empty);
             await _taskRepository.Clear(user?.Id.ToString() ?? string.Empty);
             
-            return new ApiResponce { Succeeded = true,Message ="" };
+            return new ApiResponce(userName) { Succeeded = true,Message ="" };
         }  
         public async Task<ApiResponce> Delete(int id,string userName)
         {
             var user =await _userManager.FindByNameAsync(userName);
             await _repository.Delete(id,user?.Id.ToString() ?? string.Empty);
-            return new ApiResponce { Succeeded = true,Message ="" };
+            return new ApiResponce(userName) { Succeeded = true,Message ="" };
         }
         public async Task<ApiResponce> Edit(int id,string name,string userName)
         {
             var user =await _userManager.FindByNameAsync(userName);
             await _repository.Edit(id,name,user?.Id.ToString() ?? string.Empty);
-            return new ApiResponce { Succeeded = true,Message ="" };
+            return new ApiResponce(userName) { Succeeded = true,Message ="" };
         } 
         public async Task<ApiResponce> Create(string name,string userName)
         {
             var user =await _userManager.FindByNameAsync(userName);
             await _repository.Create(new Category { Name = name,UserId = user.Id});
-            return new ApiResponce { Succeeded = true,Message ="" };
+            return new ApiResponce(userName) { Succeeded = true,Message ="" };
         }
         
     }

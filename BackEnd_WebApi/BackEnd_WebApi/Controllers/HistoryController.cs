@@ -23,7 +23,7 @@ namespace BackEnd_WebApi.Controllers
         public async Task<IActionResult> DeleteTaskHistory(int historyId)
         {
             var res = await _historyService.DeleteTimeHistory(historyId,User.Identity.Name);
-            var responce = new ApiResponce();
+            var responce = new ApiResponce(User.Identity.Name);
 
             if (res == true)
             {
@@ -38,7 +38,7 @@ namespace BackEnd_WebApi.Controllers
         public async Task<IActionResult> GetAllHistories()
         {
             var res = await _historyService.GetTaskHistory(User?.Identity?.Name ?? string.Empty);
-            var responce = new ApiResponce<List<TimeHistoryResponceDto>>();
+            var responce = new ApiResponce<List<TimeHistoryResponceDto>>(User.Identity.Name);
 
             if (res != null)
             {
@@ -94,7 +94,7 @@ namespace BackEnd_WebApi.Controllers
         public async Task<IActionResult> GetHistories(int tagId = -1, int categoryId = -1,string fromDate = "",string toDate = "")
         {
             var res = await _historyService.GetTaskHistory(User?.Identity?.Name ?? string.Empty, categoryId, tagId,fromDate,toDate);
-            var responce = new ApiResponce<List<TimeHistoryResponceDto>>();
+            var responce = new ApiResponce<List<TimeHistoryResponceDto>>(User.Identity.Name);
 
             if (res != null)
             {
@@ -111,7 +111,7 @@ namespace BackEnd_WebApi.Controllers
         public async Task<IActionResult> AddTag(string name, int historyId)
         {
             bool isSucceed = await _historyService.AddTag(name, historyId);
-            var res = new ApiResponce()
+            var res = new ApiResponce(User.Identity.Name)
             {
                 Succeeded = isSucceed
             };
@@ -122,8 +122,8 @@ namespace BackEnd_WebApi.Controllers
         [HttpGet("GetAllTags")]
         public async Task<IActionResult> GetAllTags()
         {
-            var res = await _historyService.GetAllTags();
-            var responce = new ApiResponce<List<GeneralResponceDto>>();
+            var res = await _historyService.GetAllTags(User.Identity.Name);
+            var responce = new ApiResponce<List<GeneralResponceDto>>(User.Identity.Name);
 
             if (res != null)
             {
@@ -145,7 +145,7 @@ namespace BackEnd_WebApi.Controllers
         public async Task<IActionResult> CreateFakeHistory(string date, string fromTime, string toTime, int taskId)
         {
             await _historyService.CreateFakeHistory(date, fromTime, toTime, taskId);
-            return Ok(new ApiResponce { Message ="",Succeeded = true});
+            return Ok(new ApiResponce(User.Identity.Name) { Message ="",Succeeded = true});
         }
     }
 }

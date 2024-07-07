@@ -8,5 +8,7 @@
         public string Time { get; set; } 
         public string TaskName {  get; set; }
         public int Id {  get; set; }
+        public string CategoryName { get; set; }
+        public string TagsName { get; set; }
     }
 }

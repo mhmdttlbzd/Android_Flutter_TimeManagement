@@ -26,6 +26,8 @@ namespace BackEnd_WebApi.Application.Services
             var dateT = GetDate(date,'/');
             var ft = GetTime(fromTime);
             var tt = GetTime(toTime);
+            if (ft >= tt)
+                throw new ApplicationException("The start time after than end time");
             if (dateT == null) throw new ApplicationException("Enter Date Correctly");
             var res = new TimeHistory
             {
@@ -68,6 +70,7 @@ namespace BackEnd_WebApi.Application.Services
         }
         public async Task<List<TimeHistoryResponceDto>> GetTaskHistory(string userName, int categoryId, int tagId, string fromDate, string toDate)
         {
+
             var from = GetDate(fromDate, '/');
             var to = GetDate(toDate, '/');
             var user = await _userManager.FindByNameAsync(userName);
@@ -118,14 +121,21 @@ namespace BackEnd_WebApi.Application.Services
                 if (tagId != -1 && !h.Tags.Any(t => t.Id == tagId)) continue;
                 var mo = cal.GetMonth(h.FromDate)<10 ? "0"+cal.GetMonth(h.FromDate) : ""+cal.GetMonth(h.FromDate);
                 var day = cal.GetDayOfMonth(h.FromDate)<10 ? "0"+cal.GetDayOfMonth(h.FromDate) : ""+cal.GetDayOfMonth(h.FromDate);
+                string tags = "";
+                foreach (var tag in h.Tags)
+                {
+                    tags += tag.Name + ' ';
+                }
                 var r = new TimeHistoryResponceDto
                 {
-                    Date = cal.GetYear(h.FromDate) + "/" + mo  + "/" + day + " --- " + cal.GetDayOfWeek(h.FromDate),
+                    Date = cal.GetYear(h.FromDate) + "/" + mo + "/" + day + " --- " + cal.GetDayOfWeek(h.FromDate),
                     FromTime = cal.GetHour(h.FromDate) + ":" + cal.GetMinute(h.FromDate),
                     ToTime = cal.GetHour(h.ToDate ?? DateTime.Now) + ":" + cal.GetMinute(h.ToDate ?? DateTime.Now),
                     Time = time.Hours + ":" + time.Minutes + ':' + time.Seconds,
                     TaskName = task.Name,
-                    Id = h.Id
+                    Id = h.Id,
+                    CategoryName = h.ApplicationTask.Category.Name,
+                    TagsName = tags
                 };
                 res.Add(r);
             }
@@ -139,9 +149,10 @@ namespace BackEnd_WebApi.Application.Services
             return false;
         }
 
-        public async Task<List<GeneralResponceDto>> GetAllTags()
+        public async Task<List<GeneralResponceDto>> GetAllTags(string username)
         {
-            var tags = await _tagRepository.GetAll();
+            var user =await _userManager.FindByNameAsync(username);
+            var tags = await _tagRepository.GetAll(user.UserName);
             var res = new List<GeneralResponceDto>();
             foreach (var tag in tags)
             {
@@ -157,7 +168,7 @@ namespace BackEnd_WebApi.Application.Services
         {
             var user = await _userManager.FindByNameAsync(userName);
             await _taskHistoryRepository.Clear(user?.Id.ToString() ?? string.Empty);
-            return new ApiResponce { Succeeded = true, Message = "" };
+            return new ApiResponce(userName) { Succeeded = true, Message = "" };
         }
 
     }

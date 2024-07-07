@@ -1,4 +1,5 @@
-﻿using BackEnd_WebApi.Application.Dtos;
+﻿using Azure.Identity;
+using BackEnd_WebApi.Application.Dtos;
 using BackEnd_WebApi.Application.Interfaces;
 using BackEnd_WebApi.DataAccess.Entities;
 using BackEnd_WebApi.DataAccess.Interfaces;
@@ -52,6 +53,26 @@ namespace BackEnd_WebApi.Application.Services
             }
             return res;
 
+        }     
+        public async Task<List<GeneralResponceDto>> GetAll(string username)
+        {
+            var tasks = await _taskRepository.GetAll();
+            var res = new List<GeneralResponceDto>();
+            var user =await _userManager.FindByNameAsync(username);
+            if (user != null)
+            {
+                tasks = tasks.Where(x => x.UserId == user.Id).ToList();
+                foreach (var task in tasks.Where(t =>  t.UserId == user.Id))
+                {
+                    res.Add(new GeneralResponceDto
+                    {
+                        Name = task.Name,
+                        Id = task.Id
+                    });
+                }
+            }
+            return res;
+
         }
         public async Task<GeneralResponceDto> GetById(int id)
         {
@@ -67,20 +88,19 @@ namespace BackEnd_WebApi.Application.Services
 
         public async Task<bool> Start(int taskId,string username)
         {
-            var user = await _userManager.FindByNameAsync(username);
-            return await _taskRepository.Start(taskId,user.Id);
+            
+            return await _taskRepository.Start(taskId,username);
         }
 
         public async Task<bool> End(int taskId,string username)
         {
-            var user = await _userManager.FindByNameAsync(username);
-            return await _taskRepository.End(taskId,user.Id);
+            return await _taskRepository.End(taskId, username);
         }
 
         public async Task<ApiResponce> Delete(int id , string username)
         {
 
-            var res = new ApiResponce();
+            var res = new ApiResponce(username);
             var user =await _userManager.FindByNameAsync(username);
             if (user != null)
             {
@@ -96,14 +116,36 @@ namespace BackEnd_WebApi.Application.Services
         {
             var user =await _userManager.FindByNameAsync(userName);
             await _taskRepository.Clear(user?.Id.ToString() ?? string.Empty);
-            return new ApiResponce { Succeeded = true, Message = "" };
+            return new ApiResponce(userName) { Succeeded = true, Message = "" };
         }
         public async Task<ApiResponce> Edit(int id, string name, string userName)
         {
             var user =await _userManager.FindByNameAsync(userName);
             _taskRepository.Edit(id, name, user?.Id.ToString() ?? string.Empty);
-            return new ApiResponce { Succeeded = true, Message = "" };
+            return new ApiResponce(userName) { Succeeded = true, Message = "" };
         }
-
+        public async Task ShareToFriend(string username,int taskId,string friendUsername)
+        {
+             await _taskRepository.ShareToFriend(username,taskId,friendUsername);
+        }
+        public async Task<List<GeneralResponceDto>> GetFriendlyTasks(string username)
+        {
+            var tasks =await _taskRepository.GetFriendlyTasks(username);
+            var res = new List<GeneralResponceDto>();
+            var user = await _userManager.FindByNameAsync(username);
+            if (user != null)
+            {
+               
+                foreach (var task in tasks.Where(t => t.UserId != user.Id))
+                {
+                    res.Add(new GeneralResponceDto
+                    {
+                        Name = task.Name,
+                        Id = task.Id
+                    });
+                }
+            }
+            return res;
+        }
     }
 }

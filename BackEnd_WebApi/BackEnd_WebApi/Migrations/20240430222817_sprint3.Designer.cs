@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BackEndWebApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240308233203_Sprint2")]
-    partial class Sprint2
+    [Migration("20240430222817_sprint3")]
+    partial class sprint3
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -48,6 +48,35 @@ namespace BackEndWebApi.Migrations
                     b.HasIndex("TaskId");
 
                     b.ToTable("Alarms");
+                });
+
+            modelBuilder.Entity("BackEnd_WebApi.DataAccess.Entities.AlternatingAlarm", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("DaysInWeek")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TaskId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Time")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TaskId");
+
+                    b.ToTable("AlternatingAlarms");
                 });
 
             modelBuilder.Entity("BackEnd_WebApi.DataAccess.Entities.ApplicationTask", b =>
@@ -159,56 +188,14 @@ namespace BackEndWebApi.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
 
-                    b.ToTable("Category");
+                    b.HasIndex("UserId");
 
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "مطالعه"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "اوقات فراغت"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "ورزش"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Name = "کار"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Name = "آرامش"
-                        },
-                        new
-                        {
-                            Id = 7,
-                            Name = "نظافت"
-                        },
-                        new
-                        {
-                            Id = 8,
-                            Name = "خرید"
-                        },
-                        new
-                        {
-                            Id = 9,
-                            Name = "سرگرمی"
-                        },
-                        new
-                        {
-                            Id = 10,
-                            Name = "خانواده"
-                        });
+                    b.ToTable("Category");
                 });
 
             modelBuilder.Entity("BackEnd_WebApi.DataAccess.Entities.Tag", b =>
@@ -237,9 +224,6 @@ namespace BackEndWebApi.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("ApplicationTaskId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("ApplicationTaskId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("FromDate")
@@ -393,6 +377,17 @@ namespace BackEndWebApi.Migrations
                     b.Navigation("Task");
                 });
 
+            modelBuilder.Entity("BackEnd_WebApi.DataAccess.Entities.AlternatingAlarm", b =>
+                {
+                    b.HasOne("BackEnd_WebApi.DataAccess.Entities.ApplicationTask", "Task")
+                        .WithMany()
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Task");
+                });
+
             modelBuilder.Entity("BackEnd_WebApi.DataAccess.Entities.ApplicationTask", b =>
                 {
                     b.HasOne("BackEnd_WebApi.DataAccess.Entities.Category", "Category")
@@ -411,11 +406,22 @@ namespace BackEndWebApi.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("BackEnd_WebApi.DataAccess.Entities.Category", b =>
+                {
+                    b.HasOne("BackEnd_WebApi.DataAccess.Entities.ApplicationUser", "User")
+                        .WithMany("Categories")
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("BackEnd_WebApi.DataAccess.Entities.TimeHistory", b =>
                 {
                     b.HasOne("BackEnd_WebApi.DataAccess.Entities.ApplicationTask", "ApplicationTask")
                         .WithMany("timeHistories")
-                        .HasForeignKey("ApplicationTaskId");
+                        .HasForeignKey("ApplicationTaskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("ApplicationTask");
                 });
@@ -444,6 +450,8 @@ namespace BackEndWebApi.Migrations
 
             modelBuilder.Entity("BackEnd_WebApi.DataAccess.Entities.ApplicationUser", b =>
                 {
+                    b.Navigation("Categories");
+
                     b.Navigation("Tasks");
                 });
 

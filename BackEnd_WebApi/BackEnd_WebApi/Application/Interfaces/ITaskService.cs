@@ -13,5 +13,8 @@ namespace BackEnd_WebApi.Application.Interfaces
         Task<ApiResponce> Delete(int id, string username);
         Task<ApiResponce> Clear(string userId);
         Task<ApiResponce> Edit(int id, string name, string userId);
+        Task<List<GeneralResponceDto>> GetAll(string username);
+        Task ShareToFriend(string username, int taskId, string friendUsername);
+        Task<List<GeneralResponceDto>> GetFriendlyTasks(string username);
     }
 }

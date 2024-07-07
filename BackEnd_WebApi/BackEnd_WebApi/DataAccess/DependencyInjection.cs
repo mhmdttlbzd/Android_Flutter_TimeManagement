@@ -1,5 +1,6 @@
 ﻿using BackEnd_WebApi.Application.Interfaces;
 using BackEnd_WebApi.Application.Services;
+using BackEnd_WebApi.DataAccess.Entities;
 using BackEnd_WebApi.DataAccess.Interfaces;
 using BackEnd_WebApi.DataAccess.Repositories;
 

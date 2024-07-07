@@ -7,6 +7,6 @@ namespace BackEnd_WebApi.DataAccess.Interfaces
         Task<bool> AddToHistory(int tagId, int historyId);
         Task<int?> GetTagIdByName(string name);
         Task<int?> CraeteTag(string name);
-        Task<List<Tag>> GetAll();
+        Task<List<Tag>> GetAll(string userId);
     }
 }

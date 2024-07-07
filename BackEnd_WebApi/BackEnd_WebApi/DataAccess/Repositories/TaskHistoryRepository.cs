@@ -32,7 +32,7 @@ namespace BackEnd_WebApi.DataAccess.Repositories
         }
         public async Task<List<ApplicationTask>> GetTaskHistory(string userId)
         {
-            return await _dbContext.Tasks.Where(t => t.UserId == userId).Include(t => t.timeHistories)
+            return await _dbContext.Tasks.Where(t => t.UserId == userId).Include(t => t.Category).Include(t => t.timeHistories)
                 .ThenInclude(t => t.Tags).AsNoTracking().ToListAsync();
         }
         public async Task Create(TimeHistory history)

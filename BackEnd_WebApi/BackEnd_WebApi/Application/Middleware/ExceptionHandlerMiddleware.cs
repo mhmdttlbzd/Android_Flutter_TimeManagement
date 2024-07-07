@@ -17,7 +17,7 @@ namespace BackEnd_WebApi.Application.Middleware
 
             catch (ApplicationException e) 
             {
-                var res = new ApiResponce()
+                var res = new BaseApiResponce()
                 {
                     Message = e.Message
                 };
@@ -28,7 +28,7 @@ namespace BackEnd_WebApi.Application.Middleware
             }
             catch (Exception e)
             {
-                var res = new ApiResponce()
+                var res = new BaseApiResponce()
                 {
                     Message = e.Message
                 };

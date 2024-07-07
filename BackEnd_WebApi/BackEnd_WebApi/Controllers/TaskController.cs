@@ -1,6 +1,7 @@
 ﻿using Azure;
 using BackEnd_WebApi.Application.Dtos;
 using BackEnd_WebApi.Application.Interfaces;
+using BackEnd_WebApi.DataAccess.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -23,7 +24,7 @@ namespace BackEnd_WebApi.Controllers
         public async Task<IActionResult> GetAllCategories()
         {
             var categories = await _categoryService.GetAll(User.Identity.Name);
-            var responce = new ApiResponce<List<CategoryResponceDto>>
+            var responce = new ApiResponce<List<CategoryResponceDto>>(User.Identity.Name)
             {
                 Succeeded = true,
                 Content = categories
@@ -36,7 +37,19 @@ namespace BackEnd_WebApi.Controllers
         {
             var tasks =await _taskService.GetByCategoryId(categoryId,User?.Identity?.Name ?? string.Empty);
             if (tasks.Count() == 0) { tasks.Add(new GeneralResponceDto { Id = -1, Name = "" }); }
-            var responce = new ApiResponce<List<GeneralResponceDto>>
+            var responce = new ApiResponce<List<GeneralResponceDto>>(User.Identity.Name)
+            {
+                Succeeded = true,
+                Content = tasks
+            };
+            return Ok(responce);
+        }
+        [HttpGet("GetAll")]
+        public  async Task<IActionResult> GetAll()
+        {
+            var tasks =await _taskService.GetAll(User?.Identity?.Name ?? string.Empty);
+            if (tasks.Count() == 0) { tasks.Add(new GeneralResponceDto { Id = -1, Name = "" }); }
+            var responce = new ApiResponce<List<GeneralResponceDto>>(User.Identity.Name)
             {
                 Succeeded = true,
                 Content = tasks
@@ -44,11 +57,14 @@ namespace BackEnd_WebApi.Controllers
             return Ok(responce);
         }
 
+
+        
+
         [HttpGet("GetById")]
         public async Task<IActionResult> GetById(int id)
         {
             var task =await _taskService.GetById(id);
-            var res = new ApiResponce<GeneralResponceDto>
+            var res = new ApiResponce<GeneralResponceDto>(User.Identity.Name)
             {
                 Content = task,
                 Succeeded = true
@@ -60,7 +76,7 @@ namespace BackEnd_WebApi.Controllers
         public async Task<IActionResult> CreateTask(CreateTaskDto input)
         {
             var res = await _taskService.Creat(input, User?.Identity?.Name ?? string.Empty);
-            var responce = new ApiResponce();
+            var responce = new ApiResponce(User.Identity.Name);
             if (res == true)
             {
                 responce.Succeeded = true;
@@ -74,7 +90,7 @@ namespace BackEnd_WebApi.Controllers
         public async Task<IActionResult> Start(int taskId)
         {
             var res = await _taskService.Start(taskId,User.Identity.Name);
-            var responce = new ApiResponce();
+            var responce = new ApiResponce(User.Identity.Name);
 
             if (res == true)
             {
@@ -89,7 +105,7 @@ namespace BackEnd_WebApi.Controllers
         public async Task<IActionResult> End(int taskId)
         {
             var res = await _taskService.End(taskId,User.Identity.Name);
-            var responce = new ApiResponce();
+            var responce = new ApiResponce(User.Identity.Name);
 
             if (res == true)
             {
@@ -147,6 +163,17 @@ namespace BackEnd_WebApi.Controllers
             var res = await _categoryService.Create(name, User?.Identity?.Name ?? string.Empty);
             if (res.Succeeded) return Ok(res);
             return BadRequest(res);
+        }
+        [HttpGet("GetFriendlyTasks")]
+        public async Task<IActionResult> GetFriendlyTasks()
+        {
+            return Ok(new ApiResponce<List<GeneralResponceDto>>(User.Identity.Name) { Succeeded = true, Content = await _taskService.GetFriendlyTasks(User.Identity.Name) }) ;
+        }
+        [HttpPut("ShareToFriend")]
+        public async Task<IActionResult> ShareToFriend(int taskId,string friendUsername)
+        {
+            await _taskService.ShareToFriend(User.Identity.Name,taskId,friendUsername);
+            return Ok(new ApiResponce(User.Identity.Name) { Succeeded = true});
         }
     }
 }

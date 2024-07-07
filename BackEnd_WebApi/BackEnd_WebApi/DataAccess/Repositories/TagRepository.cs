@@ -42,9 +42,9 @@ namespace BackEnd_WebApi.DataAccess.Repositories
             }
             return false;
         }
-        public async Task<List<Tag>> GetAll()
+        public async Task<List<Tag>> GetAll(string username)
         {
-            return await _dbContext.Tags.ToListAsync();
+            return await _dbContext.TimeHistories.Where(t => t.ApplicationTask.User.UserName == username ).SelectMany(t => t.Tags).ToListAsync();
         }
     }
 }

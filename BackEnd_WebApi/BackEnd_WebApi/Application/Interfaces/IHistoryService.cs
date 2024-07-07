@@ -8,7 +8,7 @@ namespace BackEnd_WebApi.Application.Interfaces
         Task<List<TimeHistoryResponceDto>> GetTaskHistory(string userId);
         Task<bool> AddTag(string name, int historyId);
         Task<List<TimeHistoryResponceDto>> GetTaskHistory(string userName, int categoryId, int tagId, string fromDate, string toDate);
-        Task<List<GeneralResponceDto>> GetAllTags();
+        Task<List<GeneralResponceDto>> GetAllTags(string userName);
         Task<ApiResponce> Clear(string userName);
         Task CreateFakeHistory(string date, string fromTime, string toTime, int taskId);
     }

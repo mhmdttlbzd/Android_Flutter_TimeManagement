@@ -10,5 +10,6 @@
         public string UserId { get; set; } = string.Empty;
         public List<Alarm> Alarms { get; set; } = new List<Alarm>();
         public List<TimeHistory> timeHistories { get; set; } = new List<TimeHistory>(); 
+        public string Usernames {  get; set; } = string.Empty;
     }
 }
